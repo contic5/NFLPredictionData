@@ -21,7 +21,7 @@ public class IndexModel : PageModel
         string filePath = "SpreadspokeData.xlsx";
 
         // This single line reads the sheet and binds it to your model list
-        IEnumerable<Spreadspoke> spreadkspokes = MiniExcel.Query<Spreadspoke>(filePath);
+        IEnumerable<Spreadspoke> spreadkspokes = MiniExcel.Query<Spreadspoke>(filePath,sheetName:"Data");
 
         foreach (var spreadkspoke in spreadkspokes)
         {

@@ -21,6 +21,10 @@ public class Spreadspoke
 
     public int SpreadFavorite { get; set;}
 
+    public int SpreadActual { get; set;}
+
+    //Using int so I can average the number of games with SpreadCorrect by Year
+    public int SpreadCorrect { get; set;}
     public Spreadspoke()
     {
         
