@@ -6,5 +6,19 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <table class="table-light table-striped">
+    <thead>
+    <th scope="col">Season</th>
+    <th scope="col">Correct Percent</th>
+    </thead>
+    <tbody>
+    @foreach(Models.AveragedSpreadspoke averagedSpreadspoke in Model.AveragedSpreadSpokes)
+    {
+        <tr>
+        <td>@averagedSpreadspoke.ScheduleSeason</td>
+        <td>@(Math.Round(100*averagedSpreadspoke.SpreadCorrect,digits:0))%</td>
+        </tr>
+    }
+    </tbody>
+    </table>
 </div>

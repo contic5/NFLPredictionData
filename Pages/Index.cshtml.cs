@@ -18,10 +18,13 @@ using Microsoft.Extensions.ObjectPool;
 
 public class IndexModel : PageModel
 {
+
+    public List<AveragedSpreadspoke> AveragedSpreadSpokes { get; set; }
+
     public List<AveragedSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
         List<AveragedSpreadspoke> res=new List<AveragedSpreadspoke>();
-        spreadspokes= (List<Spreadspoke>) spreadspokes.OrderBy(s=>s.ScheduleSeason);
+        spreadspokes = spreadspokes.OrderBy(s => s.ScheduleSeason).ToList();
 
         int currentSeason=spreadspokes[0].ScheduleSeason;
         int count=0;
@@ -30,21 +33,18 @@ public class IndexModel : PageModel
         int spreadDifference=0;
         int spreadCorrect=0;
 
+        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
             {
-                spreadFavoriteSum/=count;
-                spreadActualSum/=count;
-                spreadDifference/=count;
-                spreadCorrect/=count;
-                AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
+                averagedSpreadspoke=new AveragedSpreadspoke();
 
                 averagedSpreadspoke.ScheduleSeason=currentSeason;
-                averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
-                averagedSpreadspoke.SpreadActual=spreadActualSum/count;
-                averagedSpreadspoke.SpreadDifference=spreadDifference/count;
-                averagedSpreadspoke.SpreadCorrect=spreadCorrect/count;
+                averagedSpreadspoke.SpreadFavorite=(float) Math.Round(1.0*spreadFavoriteSum/count,2);
+                averagedSpreadspoke.SpreadActual=(float) Math.Round(1.0*spreadActualSum/count,2);
+                averagedSpreadspoke.SpreadDifference=(float) Math.Round(1.0*spreadDifference/count,2);
+                averagedSpreadspoke.SpreadCorrect=(float) Math.Round(1.0*spreadCorrect/count,2);
                 res.Add(averagedSpreadspoke);
 
                 currentSeason=spreadspoke.ScheduleSeason;
@@ -62,12 +62,12 @@ public class IndexModel : PageModel
             spreadCorrect+=spreadspoke.SpreadCorrect;
         }
 
-        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
+        averagedSpreadspoke=new AveragedSpreadspoke();
         averagedSpreadspoke.ScheduleSeason=currentSeason;
-        averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
-        averagedSpreadspoke.SpreadActual=spreadActualSum/count;
-        averagedSpreadspoke.SpreadDifference=spreadDifference/count;
-        averagedSpreadspoke.SpreadCorrect=spreadCorrect/count;
+        averagedSpreadspoke.SpreadFavorite=(float) Math.Round(1.0*spreadFavoriteSum/count,2);
+        averagedSpreadspoke.SpreadActual=(float) Math.Round(1.0*spreadActualSum/count,2);
+        averagedSpreadspoke.SpreadDifference=(float) Math.Round(1.0*spreadDifference/count,2);
+        averagedSpreadspoke.SpreadCorrect=(float) Math.Round(1.0*spreadCorrect/count,2);
         res.Add(averagedSpreadspoke);
         return res;
     }
@@ -79,10 +79,10 @@ public class IndexModel : PageModel
         IEnumerable<Spreadspoke> spreadspokesQuery = MiniExcel.Query<Spreadspoke>(filePath,sheetName:"Data");
         List<Spreadspoke> spreadspokes=spreadspokesQuery.ToList();
 
-        List<AveragedSpreadspoke> averagedSpreadSpokes=AverageBySeason(spreadspokes);
-        foreach (var averagedSpreadspoke in averagedSpreadSpokes)
+        AveragedSpreadSpokes=AverageBySeason(spreadspokes);
+        foreach (var averagedSpreadspoke in AveragedSpreadSpokes)
         {
-            Console.WriteLine($"{averagedSpreadspoke.ScheduleSeason} | {averagedSpreadspoke.SpreadDifference} and {averagedSpreadspoke.SpreadCorrect}");
+            Console.WriteLine($"{averagedSpreadspoke.ScheduleSeason} | Average Spread Difference: {averagedSpreadspoke.SpreadDifference} and Average Correct:{averagedSpreadspoke.SpreadCorrect}");
         }
     }
 }
