@@ -19,56 +19,45 @@ using Microsoft.Extensions.ObjectPool;
 public class IndexModel : PageModel
 {
 
-    public List<AveragedSpreadspoke> AveragedSpreadSpokes { get; set; }
+    public List<SeasonSpreadspoke> SeasonSpreadspokes { get; set; }
 
-    public List<AveragedSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
+    public List<SeasonSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
-        List<AveragedSpreadspoke> res=new List<AveragedSpreadspoke>();
+        List<SeasonSpreadspoke> res=new List<SeasonSpreadspoke>();
         spreadspokes = spreadspokes.OrderBy(s => s.ScheduleSeason).ToList();
 
         int currentSeason=spreadspokes[0].ScheduleSeason;
-        int count=0;
-        int spreadFavoriteSum=0;
-        int spreadActualSum=0;
-        int spreadDifference=0;
-        int spreadCorrect=0;
 
-        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
+        SeasonSpreadspoke SeasonSpreadspoke=new SeasonSpreadspoke();
+        SeasonSpreadspoke.ScheduleSeason=currentSeason;
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
             {
-                averagedSpreadspoke=new AveragedSpreadspoke();
-
-                averagedSpreadspoke.ScheduleSeason=currentSeason;
-                averagedSpreadspoke.SpreadFavorite=(float) Math.Round(1.0*spreadFavoriteSum/count,2);
-                averagedSpreadspoke.SpreadActual=(float) Math.Round(1.0*spreadActualSum/count,2);
-                averagedSpreadspoke.SpreadDifference=(float) Math.Round(1.0*spreadDifference/count,2);
-                averagedSpreadspoke.SpreadCorrect=(float) Math.Round(1.0*spreadCorrect/count,2);
-                res.Add(averagedSpreadspoke);
+                SeasonSpreadspoke.AverageValues();
+                res.Add(SeasonSpreadspoke);
 
                 currentSeason=spreadspoke.ScheduleSeason;
-
-                count=0;
-                spreadFavoriteSum=0;
-                spreadActualSum=0;
-                spreadDifference=0;
-                spreadCorrect=0;
+                SeasonSpreadspoke=new SeasonSpreadspoke();
+                SeasonSpreadspoke.ScheduleSeason=currentSeason;
             }
-            count+=1;
-            spreadFavoriteSum+=spreadspoke.SpreadFavorite;
-            spreadActualSum+=spreadspoke.SpreadActual;
-            spreadDifference+=spreadspoke.SpreadDifference;
-            spreadCorrect+=spreadspoke.SpreadCorrect;
+            SeasonSpreadspoke.Count+=1;
+            SeasonSpreadspoke.SpreadFavorite=+spreadspoke.SpreadFavorite;
+            SeasonSpreadspoke.SpreadActual+=spreadspoke.SpreadActual;
+            SeasonSpreadspoke.SpreadFavorite+=spreadspoke.SpreadFavorite;
+            SeasonSpreadspoke.SpreadCorrectPercent+=spreadspoke.SpreadCorrect;
+            if(spreadspoke.SpreadCorrect==1)
+            {
+                SeasonSpreadspoke.CorrectCount+=1;
+            }
+            else
+            {
+                SeasonSpreadspoke.IncorrectCount+=1;
+            }
         }
 
-        averagedSpreadspoke=new AveragedSpreadspoke();
-        averagedSpreadspoke.ScheduleSeason=currentSeason;
-        averagedSpreadspoke.SpreadFavorite=(float) Math.Round(1.0*spreadFavoriteSum/count,2);
-        averagedSpreadspoke.SpreadActual=(float) Math.Round(1.0*spreadActualSum/count,2);
-        averagedSpreadspoke.SpreadDifference=(float) Math.Round(1.0*spreadDifference/count,2);
-        averagedSpreadspoke.SpreadCorrect=(float) Math.Round(1.0*spreadCorrect/count,2);
-        res.Add(averagedSpreadspoke);
+        SeasonSpreadspoke.AverageValues();
+        res.Add(SeasonSpreadspoke);
         return res;
     }
     public void OnGet()
@@ -79,10 +68,10 @@ public class IndexModel : PageModel
         IEnumerable<Spreadspoke> spreadspokesQuery = MiniExcel.Query<Spreadspoke>(filePath,sheetName:"Data");
         List<Spreadspoke> spreadspokes=spreadspokesQuery.ToList();
 
-        AveragedSpreadSpokes=AverageBySeason(spreadspokes);
-        foreach (var averagedSpreadspoke in AveragedSpreadSpokes)
+        SeasonSpreadspokes = AverageBySeason(spreadspokes);
+        foreach (var SeasonSpreadspoke in SeasonSpreadspokes)
         {
-            Console.WriteLine($"{averagedSpreadspoke.ScheduleSeason} | Average Spread Difference: {averagedSpreadspoke.SpreadDifference} and Average Correct:{averagedSpreadspoke.SpreadCorrect}");
+            Console.WriteLine($"{SeasonSpreadspoke.ScheduleSeason} | Average Spread Difference: {SeasonSpreadspoke.SpreadDifference} and Average Correct:{SeasonSpreadspoke.SpreadCorrectPercent}");
         }
     }
 }

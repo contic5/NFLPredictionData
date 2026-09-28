@@ -5,18 +5,22 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
+    <h1 class="display-4">NFL Prediction Data</h1>
     <table class="table-light table-striped">
     <thead>
     <th scope="col">Season</th>
+    <th scope="col">Correct</th>
+    <th scope="col">Incorrect</th>
     <th scope="col">Correct Percent</th>
     </thead>
     <tbody>
-    @foreach(Models.AveragedSpreadspoke averagedSpreadspoke in Model.AveragedSpreadSpokes)
+    @foreach(Models.SeasonSpreadspoke SeasonSpreadspoke in Model.SeasonSpreadspokes)
     {
         <tr>
-        <td>@averagedSpreadspoke.ScheduleSeason</td>
-        <td>@(Math.Round(100*averagedSpreadspoke.SpreadCorrect,digits:0))%</td>
+        <td>@SeasonSpreadspoke.ScheduleSeason</td>
+        <td>@(SeasonSpreadspoke.CorrectCount)</td>
+        <td>@(SeasonSpreadspoke.IncorrectCount)</td>
+        <td>@(Math.Round(100*SeasonSpreadspoke.SpreadCorrectPercent,digits:0))%</td>
         </tr>
     }
     </tbody>
