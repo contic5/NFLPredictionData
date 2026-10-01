@@ -6,11 +6,24 @@
 
 <div class="text-center">
     <h1 class="display-4">NFL Prediction Data</h1>
-    <h2>@(Model.TargetTeam)</h2>
+    @{
+        if(Model.TargetTeam!=null&&Model.TargetTeam!=""&&Model.TargetTeam.Length>0)
+        {
+            <h2>Target Team: @(Model.TargetTeam)</h2>
+        }
+    }
     <form id="my_form" method="post">
     <label asp-for="TargetTeam">Target Team</label>
     <!-- The asp-for Tag Helper creates the proper id, name, and type attributes -->
-    <input asp-for="TargetTeam" type="text"/> 
+    <input asp-for="TargetTeam" type="text" list="team_names"/>
+
+    <datalist id="team_names">
+    @foreach(string teamName in Model.TeamNames)
+    {
+        <option value=@teamName>@teamName</option>
+    }
+    </datalist>
+
     <button type="submit">Submit</button>
     </form>
 

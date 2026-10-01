@@ -15,6 +15,8 @@ using NFLPredictionData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Net.Http.Headers;
+using System.Collections.Immutable;
 
 public class IndexModel : PageModel
 {
@@ -23,6 +25,8 @@ public class IndexModel : PageModel
 
     [BindProperty]
     public string TargetTeam {get; set;}
+
+    public List<string> TeamNames {get; set;}
 
     public List<SeasonSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
@@ -33,6 +37,7 @@ public class IndexModel : PageModel
 
         SeasonSpreadspoke SeasonSpreadspoke=new SeasonSpreadspoke();
         SeasonSpreadspoke.ScheduleSeason=currentSeason;
+
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
@@ -69,12 +74,27 @@ public class IndexModel : PageModel
 
         // This single line reads the sheet and binds it to your model list
         IEnumerable<Spreadspoke> spreadspokesQuery = MiniExcel.Query<Spreadspoke>(filePath,sheetName:"Data");
+        if(TargetTeam!=null&&TargetTeam!=""&&TargetTeam.Length>0)
+        {
+            spreadspokesQuery = spreadspokesQuery.Where(spreadspoke => spreadspoke.TeamHome==TargetTeam||spreadspoke.TeamAway==TargetTeam);
+        }
+
         List<Spreadspoke> spreadspokes=spreadspokesQuery.ToList();
+
+        HashSet<string> uniqueTeamNames=new HashSet<string>();
+        foreach(Spreadspoke spreadspoke in spreadspokes)
+        {
+            uniqueTeamNames.Add(spreadspoke.TeamHome);
+        }
+
+        TeamNames=uniqueTeamNames.ToList<string>();
+        TeamNames.Sort();
+        Console.WriteLine(TeamNames);
 
         SeasonSpreadspokes = AverageBySeason(spreadspokes);
         foreach (var SeasonSpreadspoke in SeasonSpreadspokes)
         {
-            Console.WriteLine($"{SeasonSpreadspoke.ScheduleSeason} | Average Spread Difference: {SeasonSpreadspoke.SpreadDifference} and Average Correct:{SeasonSpreadspoke.SpreadCorrectPercent}");
+            //Console.WriteLine($"{SeasonSpreadspoke.ScheduleSeason} | Average Spread Difference: {SeasonSpreadspoke.SpreadDifference} and Average Correct:{SeasonSpreadspoke.SpreadCorrectPercent}");
         }
     }
     public void OnGet()
