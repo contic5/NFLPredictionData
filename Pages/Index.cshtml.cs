@@ -21,6 +21,9 @@ public class IndexModel : PageModel
 
     public List<SeasonSpreadspoke> SeasonSpreadspokes { get; set; }
 
+    [BindProperty]
+    public string TargetTeam {get; set;}
+
     public List<SeasonSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
         List<SeasonSpreadspoke> res=new List<SeasonSpreadspoke>();
@@ -60,7 +63,7 @@ public class IndexModel : PageModel
         res.Add(SeasonSpreadspoke);
         return res;
     }
-    public void OnGet()
+    public void LoadData()
     {
         string filePath = "SpreadspokeData.xlsx";
 
@@ -73,5 +76,13 @@ public class IndexModel : PageModel
         {
             Console.WriteLine($"{SeasonSpreadspoke.ScheduleSeason} | Average Spread Difference: {SeasonSpreadspoke.SpreadDifference} and Average Correct:{SeasonSpreadspoke.SpreadCorrectPercent}");
         }
+    }
+    public void OnGet()
+    {
+        LoadData();
+    }
+    public void OnPost()
+    {
+        LoadData();
     }
 }

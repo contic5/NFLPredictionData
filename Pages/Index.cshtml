@@ -6,6 +6,14 @@
 
 <div class="text-center">
     <h1 class="display-4">NFL Prediction Data</h1>
+    <h2>@(Model.TargetTeam)</h2>
+    <form id="my_form" method="post">
+    <label asp-for="TargetTeam">Target Team</label>
+    <!-- The asp-for Tag Helper creates the proper id, name, and type attributes -->
+    <input asp-for="TargetTeam" type="text"/> 
+    <button type="submit">Submit</button>
+    </form>
+
     <table class="table-light table-striped">
     <thead>
     <th scope="col">Season</th>
@@ -26,3 +34,9 @@
     </tbody>
     </table>
 </div>
+<script>
+function handle_submit()
+{
+    document.getElementById("my_form").submit();
+}
+</script>
