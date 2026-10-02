@@ -9,9 +9,13 @@
     @{
         if(Model.TargetTeam!=null&&Model.TargetTeam!=""&&Model.TargetTeam.Length>0)
         {
-            <h2>Target Team: @(Model.TargetTeam)</h2>
+            <h2>Target Team: @(Model.TargetTeam)</h2> 
         }
     }
+    <h3>@(Model.SeasonSpreadspokes[0].ScheduleSeason) to @(Model.SeasonSpreadspokes[Model.SeasonSpreadspokes.Count-1].ScheduleSeason)</h3>
+    <h2>Notes</h2>
+    <p>A positive score means the favored team <b>LOST</b> or won by <b>LESS</b> than predicted.</p>
+    <p>A negative score means the favored team won by the <b>SAME</b> or <b>MORE</b> than predicted.</p>
     <form id="my_form" method="post">
     <label asp-for="TargetTeam">Target Team</label>
     <!-- The asp-for Tag Helper creates the proper id, name, and type attributes -->
@@ -27,21 +31,27 @@
     <button type="submit">Submit</button>
     </form>
 
-    <table class="table-light table-striped">
+    <table class="table table-light table-striped">
     <thead>
+    <tr>
     <th scope="col">Season</th>
+    <th scope="col">Games</th>
     <th scope="col">Correct</th>
     <th scope="col">Incorrect</th>
     <th scope="col">Correct Percent</th>
+    <th scope="col">Average Point Difference</th>
+    </tr>
     </thead>
     <tbody>
     @foreach(Models.SeasonSpreadspoke SeasonSpreadspoke in Model.SeasonSpreadspokes)
     {
         <tr>
         <td>@SeasonSpreadspoke.ScheduleSeason</td>
+        <td>@(SeasonSpreadspoke.CorrectCount+SeasonSpreadspoke.IncorrectCount)</td>
         <td>@(SeasonSpreadspoke.CorrectCount)</td>
         <td>@(SeasonSpreadspoke.IncorrectCount)</td>
         <td>@(Math.Round(100*SeasonSpreadspoke.SpreadCorrectPercent,digits:0))%</td>
+        <td>@(Math.Round(SeasonSpreadspoke.SpreadDifference,digits:2))</td>
         </tr>
     }
     </tbody>

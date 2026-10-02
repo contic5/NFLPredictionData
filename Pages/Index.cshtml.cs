@@ -54,6 +54,8 @@ public class IndexModel : PageModel
             SeasonSpreadspoke.SpreadActual+=spreadspoke.SpreadActual;
             SeasonSpreadspoke.SpreadFavorite+=spreadspoke.SpreadFavorite;
             SeasonSpreadspoke.SpreadCorrectPercent+=spreadspoke.SpreadCorrect;
+            SeasonSpreadspoke.SpreadDifference+=spreadspoke.SpreadDifference;
+
             if(spreadspoke.SpreadCorrect==1)
             {
                 SeasonSpreadspoke.CorrectCount+=1;
