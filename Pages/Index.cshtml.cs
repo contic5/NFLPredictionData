@@ -21,7 +21,7 @@ public class IndexModel : PageModel
     public List<AveragedSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
         List<AveragedSpreadspoke> res=new List<AveragedSpreadspoke>();
-        spreadspokes= (List<Spreadspoke>) spreadspokes.OrderBy(s=>s.ScheduleSeason);
+        spreadspokes = spreadspokes.OrderBy(s => s.ScheduleSeason).ToList();
 
         int currentSeason=spreadspokes[0].ScheduleSeason;
         int count=0;
@@ -30,6 +30,7 @@ public class IndexModel : PageModel
         int spreadDifference=0;
         int spreadCorrect=0;
 
+        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
@@ -38,7 +39,7 @@ public class IndexModel : PageModel
                 spreadActualSum/=count;
                 spreadDifference/=count;
                 spreadCorrect/=count;
-                AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
+                averagedSpreadspoke=new AveragedSpreadspoke();
 
                 averagedSpreadspoke.ScheduleSeason=currentSeason;
                 averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
@@ -62,7 +63,6 @@ public class IndexModel : PageModel
             spreadCorrect+=spreadspoke.SpreadCorrect;
         }
 
-        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
         averagedSpreadspoke.ScheduleSeason=currentSeason;
         averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
         averagedSpreadspoke.SpreadActual=spreadActualSum/count;
