@@ -15,74 +15,97 @@ using NFLPredictionData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.ObjectPool;
+using Microsoft.Net.Http.Headers;
+using System.Collections.Immutable;
 
 public class IndexModel : PageModel
 {
-    public List<AveragedSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
+
+    public List<SeasonSpreadspoke> SeasonSpreadspokes { get; set; }
+
+    [BindProperty]
+    public string TargetTeam {get; set;}
+
+    public List<string> TeamNames {get; set;}
+
+    public List<SeasonSpreadspoke> AverageBySeason(List<Spreadspoke> spreadspokes)
     {
-        List<AveragedSpreadspoke> res=new List<AveragedSpreadspoke>();
+        List<SeasonSpreadspoke> res=new List<SeasonSpreadspoke>();
         spreadspokes = spreadspokes.OrderBy(s => s.ScheduleSeason).ToList();
 
         int currentSeason=spreadspokes[0].ScheduleSeason;
-        int count=0;
-        int spreadFavoriteSum=0;
-        int spreadActualSum=0;
-        int spreadDifference=0;
-        int spreadCorrect=0;
+
+        SeasonSpreadspoke SeasonSpreadspoke=new SeasonSpreadspoke();
+        SeasonSpreadspoke.ScheduleSeason=currentSeason;
 
         AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
             {
-                spreadFavoriteSum/=count;
-                spreadActualSum/=count;
-                spreadDifference/=count;
-                spreadCorrect/=count;
-                averagedSpreadspoke=new AveragedSpreadspoke();
-
-                averagedSpreadspoke.ScheduleSeason=currentSeason;
-                averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
-                averagedSpreadspoke.SpreadActual=spreadActualSum/count;
-                averagedSpreadspoke.SpreadDifference=spreadDifference/count;
-                averagedSpreadspoke.SpreadCorrect=spreadCorrect/count;
-                res.Add(averagedSpreadspoke);
+                SeasonSpreadspoke.AverageValues();
+                res.Add(SeasonSpreadspoke);
 
                 currentSeason=spreadspoke.ScheduleSeason;
-
-                count=0;
-                spreadFavoriteSum=0;
-                spreadActualSum=0;
-                spreadDifference=0;
-                spreadCorrect=0;
+                SeasonSpreadspoke=new SeasonSpreadspoke();
+                SeasonSpreadspoke.ScheduleSeason=currentSeason;
             }
-            count+=1;
-            spreadFavoriteSum+=spreadspoke.SpreadFavorite;
-            spreadActualSum+=spreadspoke.SpreadActual;
-            spreadDifference+=spreadspoke.SpreadDifference;
-            spreadCorrect+=spreadspoke.SpreadCorrect;
+            SeasonSpreadspoke.Count+=1;
+            SeasonSpreadspoke.SpreadFavorite=+spreadspoke.SpreadFavorite;
+            SeasonSpreadspoke.SpreadActual+=spreadspoke.SpreadActual;
+            SeasonSpreadspoke.SpreadFavorite+=spreadspoke.SpreadFavorite;
+            SeasonSpreadspoke.SpreadCorrectPercent+=spreadspoke.SpreadCorrect;
+            SeasonSpreadspoke.SpreadDifference+=spreadspoke.SpreadDifference;
+
+            if(spreadspoke.SpreadCorrect==1)
+            {
+                SeasonSpreadspoke.CorrectCount+=1;
+            }
+            else
+            {
+                SeasonSpreadspoke.IncorrectCount+=1;
+            }
         }
 
-        averagedSpreadspoke.ScheduleSeason=currentSeason;
-        averagedSpreadspoke.SpreadFavorite=spreadFavoriteSum/count;
-        averagedSpreadspoke.SpreadActual=spreadActualSum/count;
-        averagedSpreadspoke.SpreadDifference=spreadDifference/count;
-        averagedSpreadspoke.SpreadCorrect=spreadCorrect/count;
-        res.Add(averagedSpreadspoke);
+        SeasonSpreadspoke.AverageValues();
+        res.Add(SeasonSpreadspoke);
         return res;
     }
-    public void OnGet()
+    public void LoadData()
     {
         string filePath = "SpreadspokeData.xlsx";
 
         // This single line reads the sheet and binds it to your model list
         IEnumerable<Spreadspoke> spreadspokesQuery = MiniExcel.Query<Spreadspoke>(filePath,sheetName:"Data");
+        if(TargetTeam!=null&&TargetTeam!=""&&TargetTeam.Length>0)
+        {
+            spreadspokesQuery = spreadspokesQuery.Where(spreadspoke => spreadspoke.TeamHome==TargetTeam||spreadspoke.TeamAway==TargetTeam);
+        }
+
         List<Spreadspoke> spreadspokes=spreadspokesQuery.ToList();
 
-        List<AveragedSpreadspoke> averagedSpreadSpokes=AverageBySeason(spreadspokes);
-        foreach (var averagedSpreadspoke in averagedSpreadSpokes)
+        HashSet<string> uniqueTeamNames=new HashSet<string>();
+        foreach(Spreadspoke spreadspoke in spreadspokes)
         {
-            Console.WriteLine($"{averagedSpreadspoke.ScheduleSeason} | {averagedSpreadspoke.SpreadDifference} and {averagedSpreadspoke.SpreadCorrect}");
+            uniqueTeamNames.Add(spreadspoke.TeamHome);
         }
+
+        TeamNames=uniqueTeamNames.ToList<string>();
+        TeamNames.Sort();
+        Console.WriteLine(TeamNames);
+
+        SeasonSpreadspokes = AverageBySeason(spreadspokes);
+        foreach (var SeasonSpreadspoke in SeasonSpreadspokes)
+        {
+            //Console.WriteLine($"{SeasonSpreadspoke.ScheduleSeason} | Average Spread Difference: {SeasonSpreadspoke.SpreadDifference} and Average Correct:{SeasonSpreadspoke.SpreadCorrectPercent}");
+        }
+    }
+    public void OnGet()
+    {
+        LoadData();
+    }
+    public void OnPost()
+    {
+        LoadData();
     }
 }
