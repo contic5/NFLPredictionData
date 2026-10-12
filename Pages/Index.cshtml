@@ -14,8 +14,8 @@
     }
     <h3>@(Model.SeasonSpreadspokes[0].ScheduleSeason) to @(Model.SeasonSpreadspokes[Model.SeasonSpreadspokes.Count-1].ScheduleSeason)</h3>
     <h2>Notes</h2>
-    <p>A positive score means the favored team <b>LOST</b> or won by <b>LESS</b> than predicted.</p>
-    <p>A negative score means the favored team won by the <b>SAME</b> or <b>MORE</b> than predicted.</p>
+    <p>A positive score means the favored team <b>LOST</b> or won by <b>LESS</b> than predicted. The prediction is a LOSS.</p>
+    <p>A negative score means the favored team won by the <b>SAME</b> or <b>MORE</b> than predicted. The prediction is a WIN.</p>
     <form id="my_form" method="post">
     <label asp-for="TargetTeam">Target Team</label>
     <!-- The asp-for Tag Helper creates the proper id, name, and type attributes -->
