@@ -38,6 +38,7 @@ public class IndexModel : PageModel
         SeasonSpreadspoke SeasonSpreadspoke=new SeasonSpreadspoke();
         SeasonSpreadspoke.ScheduleSeason=currentSeason;
 
+        AveragedSpreadspoke averagedSpreadspoke=new AveragedSpreadspoke();
         foreach (var spreadspoke in spreadspokes)
         {
             if(spreadspoke.ScheduleSeason!=currentSeason)
